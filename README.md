@@ -3,6 +3,7 @@
 ```sh
 git clone https://github.com/chikaratanaka/2025-03-plactice-tanaka-v0-next
 cd 2025-03-plactice-tanaka-v0-next
+export DB_URL=postgresql://db_2025_03_plactice_tanaka_v0:ZWViOGQ3YWY0OTM0@104.198.119.18:5432/db_2025_03_plactice_tanaka_v0
 yarn next
 # open
 # http://localhost:3000

@@ -1,0 +1,15 @@
+datasource db {
+  provider = "postgres"
+  url      = env("DB_URL")
+}
+
+generator client {
+  provider        = "prisma-client-js"
+  output          = "../node_modules/.prisma/client"
+}
+
+/// TASK
+model Task {
+  id    String @id @default(uuid()) /// ID
+  title String /// title
+}
