@@ -1,15 +1,20 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../node_modules/.prisma/client"
+}
+
 datasource db {
   provider = "postgres"
   url      = env("DB_URL")
 }
 
-generator client {
-  provider        = "prisma-client-js"
-  output          = "../node_modules/.prisma/client"
+model Task {
+  id    String @id  @default(uuid())
+  title String
 }
 
-/// TASK
-model Task {
-  id    String @id @default(uuid()) /// ID
-  title String /// title
+model Todo {
+  id        Int     @id @default(autoincrement())
+  text      String
+  completed Boolean @default(false)
 }
