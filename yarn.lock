@@ -508,7 +508,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@prisma/engines@npm:6.4.1":
+"@prisma/engines@npm:6.4.1, @prisma/engines@npm:^6.4.1":
   version: 6.4.1
   resolution: "@prisma/engines@npm:6.4.1"
   dependencies:
@@ -1450,6 +1450,7 @@ __metadata:
   resolution: "root-workspace-0b6124@workspace:."
   dependencies:
     "@prisma/client": "npm:^6.4.1"
+    "@prisma/engines": "npm:^6.4.1"
     "@types/node": "npm:22.13.9"
     "@types/react": "npm:^19"
     "@types/react-dom": "npm:^19"

@@ -1,59 +1,69 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect } from "react"; // reactのフックをimport
 
-type Todo = { //typeエイリアス
-  id: number; //タスクの識別
-  text: string; //タスクの内容
-  completed: boolean; //タスク完了状態を表すフラグ
+type Todo = { 
+  id: number; 
+  text: string; 
+  completed: boolean; 
 };
 
 export default function Home() {
-  const [todos, setTodos] = useState<Todo[]>([]);  //useState
+  const [todos, setTodos] = useState<Todo[]>([]);
   const [inputText, setInputText] = useState<string>("");
 
-  // LocalStorage から読み込み（初回のみ）
+  //DBからTodoを取得
   useEffect(() => {
-    const storedTodos = localStorage.getItem("todos");
-    if (storedTodos) {
-      setTodos(JSON.parse(storedTodos));
-    }
+    const fetchTodos = async () => {
+      const response = await fetch('/api/todos');
+      const data = await response.json();
+      setTodos(data);
+    };
+    fetchTodos();
   }, []);
 
-  // LocalStorage に保存（`todos` が変わるたび）
-  useEffect(() => {
-    localStorage.setItem("todos", JSON.stringify(todos));
-  }, [todos]);
-
-  // 新規追加
-  const addTodo = () => {
+  //新規追加
+  const addTodo = async () => {
     const trimmedText = inputText.trim();
     if (trimmedText === "") return;
-    const newTodo: Todo = { 
-      id: Date.now(),
-      text: trimmedText,
-      completed: false 
-      };
+
+    const response = await fetch('/api/todos', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ text: trimmedText }),
+    });
+
+    const newTodo = await response.json();
     setTodos([...todos, newTodo]);
     setInputText("");
   };
 
-  // 完了状態の切り替え
-  const toggleTodo = (id: number) => {
-    setTodos(todos.map(todo => todo.id === id 
-        ? { ...todo, completed: !todo.completed } 
-        : todo)
-      );
+  //削除
+  const deleteTodo = async (id: number) => {
+    await fetch('/api/todos', {
+      method: 'DELETE',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id }),
+    });
+    setTodos(todos.filter(todo => todo.id !== id));
   };
 
-  // 削除
-  const deleteTodo = (id: number) => {
-    setTodos(todos.filter(todo => todo.id !== id));
+  //完了状態の切り替え
+  const toggleTodo = async (id: number, completed: boolean) => {
+    await fetch('/api/todos', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id, completed: !completed }),
+    });
+
+    setTodos(todos.map(todo =>
+      todo.id === id ? { ...todo, completed: !todo.completed } : todo
+    ));
   };
 
   return (
     <div className="todo-container">
       <h1>TODOリスト</h1>
       <input
-        value={inputText} //フォームの入力値をinputTextに紐づける
+        value={inputText}
         onChange={(e) => setInputText(e.target.value)}
         onKeyDown={(e) => e.key === "Enter" && addTodo()} 
       />
@@ -63,7 +73,7 @@ export default function Home() {
       <ul>
         {todos.filter(todo => !todo.completed).map(todo => (
           <li key={todo.id}>  
-            <input type="checkbox" checked={todo.completed} onChange={() => toggleTodo(todo.id)} />
+            <input type="checkbox" checked={todo.completed} onChange={() => toggleTodo(todo.id, todo.completed)} />
             {todo.text}
             <button onClick={() => deleteTodo(todo.id)}>削除</button>
           </li>
@@ -74,7 +84,7 @@ export default function Home() {
       <ul>
         {todos.filter(todo => todo.completed).map(todo => (
           <li key={todo.id}> 
-            <input type="checkbox" checked={todo.completed} onChange={() => toggleTodo(todo.id)} />
+            <input type="checkbox" checked={todo.completed} onChange={() => toggleTodo(todo.id, todo.completed)} />
             {todo.text}
             <button onClick={() => deleteTodo(todo.id)}>削除</button>
           </li>
