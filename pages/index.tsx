@@ -1,4 +1,6 @@
-import { useState, useEffect } from "react"; // reactのフックをimport
+import { useState, useEffect } from "react";
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/router";
 
 type Todo = { 
   id: number; 
@@ -7,10 +9,17 @@ type Todo = {
 };
 
 export default function Home() {
+  const { data: session, status } = useSession();
+  const router = useRouter();
   const [todos, setTodos] = useState<Todo[]>([]);
   const [inputText, setInputText] = useState<string>("");
 
-  //DBからTodoを取得
+  useEffect(() => {
+    if (status === "unauthenticated") {
+      router.push("/signin"); // 未ログインならサインインページへリダイレクト
+    }
+  }, [status, router]);
+
   useEffect(() => {
     const fetchTodos = async () => {
       const response = await fetch('/api/todos');
@@ -20,7 +29,6 @@ export default function Home() {
     fetchTodos();
   }, []);
 
-  //新規追加
   const addTodo = async () => {
     const trimmedText = inputText.trim();
     if (trimmedText === "") return;
@@ -36,7 +44,6 @@ export default function Home() {
     setInputText("");
   };
 
-  //削除
   const deleteTodo = async (id: number) => {
     await fetch('/api/todos', {
       method: 'DELETE',
@@ -46,7 +53,6 @@ export default function Home() {
     setTodos(todos.filter(todo => todo.id !== id));
   };
 
-  //完了状態の切り替え
   const toggleTodo = async (id: number, completed: boolean) => {
     await fetch('/api/todos', {
       method: 'PATCH',
@@ -58,6 +64,8 @@ export default function Home() {
       todo.id === id ? { ...todo, completed: !todo.completed } : todo
     ));
   };
+
+  if (status === "loading") return <p>Loading...</p>;
 
   return (
     <div className="todo-container">

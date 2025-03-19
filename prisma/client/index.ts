@@ -2,6 +2,7 @@ import { PrismaClient } from "@prisma/client"
 
 const prismaClientSingleton = () => {
   const prisma = new PrismaClient({
+  
     ...(process.env.FEATURE_FLGS?.split(",").includes("PRISMA_LOG") && {
       log: [
         { emit: "stdout", level: "query" },
